@@ -91,8 +91,8 @@ lista_edad <- c("Todos", lista_edad)
 Filtro de datos {.sidebar}
 -------------------------------------
 
-```{r filtro de datos}
-
+```{r}
+# Delitos
 selectInput(
   inputId = "delito",
   label = "Tipo de Delito",
@@ -100,9 +100,9 @@ selectInput(
   selected = "Todos"
 )
 
- selectInput(
+selectInput(
   inputId = "victima",
-  label = "Víctima",
+  label = "Victima",
   choices = lista_victima,
   selected = "Todos"
 )
@@ -120,95 +120,51 @@ selectInput(
   choices = lista_edad,
   selected = "Todos"
 )
+
 ```
 
 
 ```{r}
+# Función para filtrar los datos con base en los controles de entrada
 filtrarDelitos <- reactive({
+  # Valor inicial del objeto que va a retornarse
   delitos_filtrados <- delitos
+  
+
+# Filtrado de distritos por tipo de delito 
   if (input$delito != "Todos") {
     delitos_filtrados <-
-      delitos_filtrados %>%
+     delitos_filtrados %>%
       filter(Delito == input$delito)
-    
-if (input$delito != "Todos") {
-    delitos_filtrados <-
-      delitos_filtrados %>%
-      lista_tipo_delito <- unique(delitos$Delito)
-      lista_tipo_delito <- sort(lista_tipo_delito)
-      lista_tipo_delito <- c("Todos", lista_tipo_delito)
-       
- updatselectImput(
-   session,
-   "Delito",
-   label = "Tipo de Delito",
-   choices = lista_tipo_delito,
-   selected = "Todos"
- ) 
-}}
+  }
+
+  
+# Filtrado de distritos por victima
    if (input$victima != "Todos") {
      delitos_filtrados <-
        delitos_filtrados %>%
        filter(Victima == input$victima)
-     
-  if (input$victima != "Todos") {
-     delitos_filtrados <-
-       delitos_filtrados %>%
-       lista_victima <- unique(delitos$Victima)
-       lista_victima <- sort(lista_victima)
-       lista_victima <- c("Todos", lista_victima)
-       
-updateSelectInput(
-  session,
-  "Victima",
-  label = "Víctima",
-  choices = lista_victima,
-  select = "Todos"
-)       
-}}       
+   }
+
+
+# Filtrado de distritos por genero
   if (input$Genero != "Todos") {
-     delitos_filtrados <-
-       delitos_filtrados %>%
-       filter(Genero == input$Genero)
-     
-  if (input$Genero != "Todos") {
-     delitos_filtrados <-
-       delitos_filtrados %>%
-       lista_genero <- unique(delitos$Genero)
-       lista_genero <- sort(lista_genero)
-       lista_genero <- c("Todos", lista_genero)
-       
-updateSelectInput(
-  session,
-  "Genero",
-  label = "Género",
-  choices = lista_genero,
-  select = "Todos"
-)
-  }}     
- 
-if (input$Edad != "Todos") {
-     delitos_filtrados <-
-       delitos_filtrados %>%
-       filter(Edad == input$Edad)
-     
+    delitos_filtrados <-
+      delitos_filtrados %>%
+      filter(Genero == input$Genero)
+  }
+
+# Filtrado de distritos por edad
   if (input$Edad != "Todos") {
-     delitos_filtrados <-
-       delitos_filtrados %>%
-       lista_edad <- unique(delitos$Edad)
-       lista_edad <- sort(lista_edad)
-       lista_edad <- c("Todos", lista_edad)
-       
-updateSelectInput(
-  session,
-  "Edad",
-  label = "Edad",
-  choices = lista_edad,
-  select = "Todos"
-)
-  }} 
+    delitos_filtrados <-
+      delitos_filtrados %>%
+      filter(Edad == input$Edad)
+  }
+
+
+
+return(delitos_filtrados)
   
- return(delitos_filtrados)
 })
   
 ```
@@ -243,7 +199,7 @@ delitos <-
   mutate(canton_normalizado = tolower(stri_trans_general(Canton, id = "Latin-ASCII")))
 ```
 
-```{r uniion cantones a datos, message=FALSE, warning=FALSE}
+```{r union cantones a datos, message=FALSE, warning=FALSE}
 delitos <-
   delitos %>%
   left_join(
@@ -259,7 +215,7 @@ delitos <-
 ```
 
 
-```{r normal distritos,message=FALSE,warning=FALSE}
+```{r normal distritos, message=FALSE,warning=FALSE}
 distritos <-
   distritos %>%
   mutate(distrito_normalizado = tolower(stri_trans_general(distrito, id = "Latin-ASCII")))
@@ -330,7 +286,7 @@ delitos_x_distrito <-
   count(codigo_dta, name = "delitos")
 ```
 
-```{r union delitos distritos, message=FALSE, warning=FALSE}
+```{r uniondelitosxdistritoadistritos, message=FALSE, warning=FALSE}
 distritos_delitos <-
   distritos %>%
   left_join(
@@ -342,7 +298,7 @@ distritos_delitos <-
   mutate(delitos = ifelse(is.na(delitos), 0, delitos))
 ```
 
-```{r paleta colores distritos, message=FALSE, warning=FALSE}
+```{r paletacoloresdistritos, message=FALSE, warning=FALSE}
 colores_distritos_delitos <-
   colorNumeric(palette = "Reds",
                domain = distritos_delitos$delitos,
@@ -350,11 +306,8 @@ colores_distritos_delitos <-
 ```
 
 
-```{r mapa leaflet, message=FALSE, warning=FALSE}
-
+```{r mapa-leaflet, message=FALSE, warning=FALSE}
 renderLeaflet({
-  delitos <- filtrarDelitos()
-
 leaflet() %>%
   setView(# centro y nivel inicial de acercamiento
     lng = -84.19452,
@@ -403,6 +356,7 @@ leaflet() %>%
     title = "Cantidad de delitos"
   )
 })
+
 ```
 
 
@@ -412,6 +366,7 @@ leaflet() %>%
 
 renderDT({
   delitos <- filtrarDelitos()
+  
   delitos %>%
     dplyr::select(Delito,
                   Fecha,
@@ -433,8 +388,11 @@ renderDT({
         "Distrito"
       ),
       options = list(
-        language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')))
-      })
+        language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')
+      )
+    )
+})
+
 ```
 
 Gráfico 1, 2 y 3 
@@ -447,12 +405,11 @@ Row {data-height=500}
 ### Gráfico 1: Cantidad de delitos por tipo de delito 
 
 ```{r grafico 1, message = FALSE}
-
 # Cantidad de delitos por tipo de delito
 
- renderPlotly({
+renderPlotly({
   delitos <- filtrarDelitos()
-  
+
   ggplot2_delitos <-
     delitos %>%
     count(Delito) %>%
@@ -464,9 +421,8 @@ Row {data-height=500}
     ylab("Cantidad de delitos") +
     theme_gray()
   ggplotly(ggplot2_delitos) %>% config(locale = 'es')
- 
- })
-  
+})
+
 ```
 
 
@@ -475,8 +431,9 @@ Row {data-height=500}
 ```{r grafico 2, message = FALSE}
 # Cantidad de delitos por victima
 
- renderPlotly({
+renderPlotly({
   delitos <- filtrarDelitos()
+
 ggplot2_delitos <-
 delitos %>%
   count(Victima) %>%
@@ -488,6 +445,7 @@ delitos %>%
   ylab("Cantidad de delitos") +
   theme_gray() 
 ggplotly(ggplot2_delitos) %>% config(locale = 'es')
+
 })
 ```
 
@@ -497,7 +455,6 @@ ggplotly(ggplot2_delitos) %>% config(locale = 'es')
 
 renderPlotly({
   delitos <- filtrarDelitos()
-
 datos <-
   delitos %>%
   mutate(meses = lubridate::month(Fecha))
@@ -532,7 +489,6 @@ Row {data-height=500}
 
 renderPlotly({
   delitos <- filtrarDelitos()
-  
 delitos_genero <-
   delitos %>%
   ggplot(aes(x = Delito, fill = Genero)) +
@@ -546,6 +502,7 @@ delitos_genero <-
 
 ggplotly(delitos_genero) %>% config(locale = 'es')
 })
+
 ```
 
 ### Gráfico 5 : Proporción de delitos por género  
@@ -554,7 +511,6 @@ ggplotly(delitos_genero) %>% config(locale = 'es')
 
 renderPlotly({
   delitos <- filtrarDelitos()
-
 delitos_edad <-
   delitos %>%
   ggplot(aes(x = Delito, fill = Edad)) +
@@ -567,6 +523,7 @@ delitos_edad <-
   theme_get()
 
 ggplotly(delitos_edad) %>% config(locale = 'es')
+
 })
 ```
 
