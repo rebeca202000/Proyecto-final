@@ -1,13 +1,13 @@
 ---
-title: " Proyecto: Estadisticas policiales sobre los distritos en Costa Rica "
+title: ' Proyecto: Estadisticas policiales sobre los distritos en Costa Rica '
 author: "Rebeca Céspedes Serrano y María Sofía Moya Bonilla"
-output: 
+output:
   flexdashboard::flex_dashboard:
     orientation: rows
     theme:
       version: 3
       bootswatch: cosmo
-runtime: shiny  
+runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -29,33 +29,28 @@ library(terra)
 library(stringi)
 library(tidyverse)
 library(spData)
-
-
 ```
 
 ```{r lectura de datos distritos}
 distritos <-
-  st_read(dsn = "D:/Procesamiento de datos/proyecto/distritos_simplificados.geojson", quiet = TRUE) %>%
+  st_read(dsn = "distritos_simplificados.geojson", quiet = TRUE) %>%
   st_transform(4326)
-
 ```
 
 ```{r lectura de datos cantones}
 cantones <-
-  st_read(dsn = "D:/Procesamiento de datos/proyecto/cantones_simplificados.geojson", quiet = TRUE) %>%
+  st_read(dsn = "cantones_simplificados.geojson", quiet = TRUE) %>%
   st_transform(4326)
 
 ```
 
-
 ```{r lectura de datos policales,  message = FALSE}
 delitos <-
-  readxl::read_excel("D:/Procesamiento de datos/proyecto/estadisticaspoliciales2021.xls")
+  readxl::read_excel("estadisticaspoliciales2021.xls")
 ```
 
 Datos
 =======================================================================
-
 
 ```{r lista delitos}
 # Lista ordenada de delito + "Todos"
@@ -64,7 +59,6 @@ lista_tipo_delito <- sort(lista_tipo_delito)
 lista_tipo_delito <- c("Todos", lista_tipo_delito)
 ```
 
-
 ```{r lista victima}
 # Lista ordenada de victima + "Todos"
 lista_victima <- unique(delitos$Victima)
@@ -72,14 +66,12 @@ lista_victima <- sort(lista_victima)
 lista_victima <- c("Todos", lista_victima)
 ```
 
-
 ```{r lista genero}
 # Lista ordenada de genero + "Todos"
 lista_genero <- unique(delitos$Genero)
 lista_genero <- sort(lista_genero)
 lista_genero <- c("Todos", lista_genero)
 ```
-
 
 ```{r lista edad}
 # Lista ordenada de edad + "Todos"
@@ -122,7 +114,6 @@ selectInput(
 )
 
 ```
-
 
 ```{r}
 # Función para filtrar los datos con base en los controles de entrada
@@ -169,7 +160,6 @@ return(delitos_filtrados)
   
 ```
 
-
 Row {data-height=10}
 -----------------------------------------------------------------------
 
@@ -178,7 +168,7 @@ Row {data-height=10}
 Row {data-height=500}
 -----------------------------------------------------------------------
 
-### Mapa de delitos por deistrito
+### Mapa de delitos por distrito
 
 ```{r normalizacion cantones, message=FALSE, warning=FALSE}
 cantones <-
@@ -213,7 +203,6 @@ delitos <-
     keep = FALSE
   )
 ```
-
 
 ```{r normal distritos, message=FALSE,warning=FALSE}
 distritos <-
@@ -305,9 +294,11 @@ colores_distritos_delitos <-
                na.color = "transparent")
 ```
 
+```{r mapaleaflet, message=FALSE, warning=FALSE}
 
-```{r mapa-leaflet, message=FALSE, warning=FALSE}
 renderLeaflet({
+  delitos <- filtrarDelitos()
+  
 leaflet() %>%
   setView(# centro y nivel inicial de acercamiento
     lng = -84.19452,
@@ -359,7 +350,6 @@ leaflet() %>%
 
 ```
 
-
 ### Tabla de datos 
 
 ```{r tabla,  message = FALSE }
@@ -392,12 +382,10 @@ renderDT({
       )
     )
 })
-
 ```
 
 Gráfico 1, 2 y 3 
 =======================================================================
-
 
 Row {data-height=500}
 -----------------------------------------------------------------------
@@ -424,7 +412,6 @@ renderPlotly({
 })
 
 ```
-
 
 ### Gráfico 2: Cantidad de delitos por víctima
 
@@ -482,7 +469,6 @@ Gráfico  4 y 5
 Row {data-height=500}
 -----------------------------------------------------------------------
 
-
 ### Gráfico 4 : Proporción de delitos por género  
 
 ```{r , message = FALSE}
@@ -502,7 +488,6 @@ delitos_genero <-
 
 ggplotly(delitos_genero) %>% config(locale = 'es')
 })
-
 ```
 
 ### Gráfico 5 : Proporción de delitos por género  
