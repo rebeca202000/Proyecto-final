@@ -33,20 +33,20 @@ library(spData)
 
 ```{r lectura de datos distritos}
 distritos <-
-  st_read(dsn = "distritos_simplificados.geojson", quiet = TRUE) %>%
+  st_read(dsn = "C:/Users/REBECA/Desktop/proyecto/distritos_simplificados.geojson", quiet = TRUE) %>%
   st_transform(4326)
 ```
 
 ```{r lectura de datos cantones}
 cantones <-
-  st_read(dsn = "cantones_simplificados.geojson", quiet = TRUE) %>%
+  st_read(dsn = "C:/Users/REBECA/Desktop/proyecto/cantones_simplificados.geojson", quiet = TRUE) %>%
   st_transform(4326)
 
 ```
 
 ```{r lectura de datos policales,  message = FALSE}
 delitos <-
-  readxl::read_excel("estadisticaspoliciales2021.xls")
+  readxl::read_excel("C:/Users/REBECA/Desktop/proyecto/estadisticaspoliciales2021.xls")
 ```
 
 Datos
